@@ -1,26 +1,24 @@
-name: Build nginx-micro for 贝壳云 aarch64
-
+name: Build nginx-micro 贝壳云专用
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Install cross compiler
+      - name: Install compiler
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y gcc-aarch64-linux-gnu make
+          sudo apt update
+          sudo apt install -y gcc-aarch64-linux-gnu make
 
-      - name: Compile nginx-micro
+      - name: Build
         run: |
           make CC=aarch64-linux-gnu-gcc
-          file nginx-micro
 
-      - name: Upload final file
-        uses: actions/upload-artifact@v4
+      - name: Upload
+        uses: actions/upload-artifact@v3
         with:
-          name: nginx-micro-beikeyun-aarch64
+          name: nginx-micro-beikeyun
           path: nginx-micro
