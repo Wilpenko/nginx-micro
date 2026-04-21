@@ -1,49 +1,24 @@
-name: Build nginx-micro for Beikeyun (aarch64 static)
+name: Build nginx-micro 贝壳云专用（最终正确版）
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
-      - name: Install build dependencies
+      - uses: actions/checkout@v3
+
+      - name: Install aarch64 cross compiler
         run: |
           sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu make libc6-dev-arm64-cross wget tar git
+          sudo apt install -y gcc-aarch64-linux-gnu make
 
-      - name: Clone nginx-micro repo
-        uses: actions/checkout@v4
-        with:
-          repository: williamchanrico/nginx-micro
-          ref: master
-
-      - name: Configure static build for aarch64
+      - name: Build static binary
         run: |
-          # 交叉编译配置，完全静态，无依赖
-          export CC=aarch64-linux-gnu-gcc
-          ./configure \
-            --crossbuild=linux-aarch64 \
-            --with-cc=$CC \
-            --with-ld-opt="-static -pthread -lm" \
-            --without-pcre \
-            --without-openssl \
-            --without-zlib \
-            --without-http_gzip_module \
-            --without-http_rewrite_module \
-            --without-http_proxy_module \
-            --without-http_fastcgi_module \
-            --without-http_uwsgi_module \
-            --without-http_scgi_module \
-            --without-http_grpc_module \
-            --without-http_memcached_module \
-            --with-http_dav_module
+          make CC=aarch64-linux-gnu-gcc LDFLAGS="-static"
 
-      - name: Build nginx-micro
-        run: |
-          make -j$(nproc)
-
-      - name: Upload static binary
-        uses: actions/upload-artifact@v4
+      - name: Upload result
+        uses: actions/upload-artifact@v3
         with:
           name: nginx-micro-beikeyun
-          path: objs/nginx
+          path: nginx-micro
